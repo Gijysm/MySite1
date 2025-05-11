@@ -1,0 +1,35 @@
+﻿@page "/Razor/Repoz_Info_Page/{repoz_id:int}"
+@using System.IO
+@using MySite.Components.Parser
+@using MySite.Models
+@inject RepozServise RepozServise
+@inject IWebHostEnvironment Environment
+<h3>Repoz_Info_Page</h3>
+@if (repoze != null)
+{
+    <h4>@repoze.Name</h4>
+    <img src="data:image/jpeg;base64,@Convert.ToBase64String(File.ReadAllBytes(repoze._image))" class="product_img" />
+    <p>@repoze.Description</p>
+    <p>Час: @repoze.Time</p>
+    <a href="@repoze.Id" target="_blank">Посилання</a>
+}
+@code {
+    [Parameter] 
+    public int repoz_id { get; set; } = default;
+
+    private Product? repoze;
+
+    protected override void OnInitialized()
+    {
+        if (repoz_id >= 0 && repoz_id < RepozServise.Repozes.Count)
+        {
+            repoze = RepozServise.Repozes[repoz_id];
+        }
+        else
+        {
+            Console.WriteLine($"Invalid repoz_id: {repoz_id}, {RepozServise.Repozes.Count}");
+            repoze = null;
+        }
+    }
+
+}

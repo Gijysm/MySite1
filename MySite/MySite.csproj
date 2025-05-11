@@ -8,7 +8,6 @@
 
     <ItemGroup>
       <None Include="wwwroot\lib\bootstrap\dist\css\site.css" />
-      <None Include="wwwroot\lib\bootstrap\dist\js\JS\Anim.jsx" />
     </ItemGroup>
 
     <ItemGroup>
