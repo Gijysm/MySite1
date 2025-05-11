@@ -1,0 +1,75 @@
+﻿@page "/Razor/bindprop"
+@using System.IO
+@using MySite.Components.Parser
+@inject IWebHostEnvironment Environment
+
+
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<link rel="stylesheet" href="/lib/bootstrap/dist/css/site.css" />
+<link rel="stylesheet" href="/lib/bootstrap/dist/css/animated-gradient-header.css" />
+
+
+<div id="anim-root"></div>
+
+<script type="text/babel" src="/js/anim.jsx"></script>
+
+<body>
+<ul class="product-container">
+@foreach (var product in products)
+{
+    <div class="product">
+        @product.Name<br/>
+        @if (product._image is not null)
+        {
+            <p>
+                <img class="product_img" src="data:image/jpeg;base64,@Convert.ToBase64String(File.ReadAllBytes(product._image))"/>
+            </p>
+        }
+        <b font size="5" class="product_info" face="Times New Roman">
+            <a class="description">@product.Description</a><br/>
+            <a href="@product.Id" target="_blank" class="ID">@product.Id</a>
+            <a class="Time">@product.Time</a><br/>
+        </b>
+    </div>
+}
+</ul>
+</body>
+
+@code {
+    private List<Models.Product>? products = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        List<(string, string,string, string)> links = await Git_parse.ParseRepos();
+        if (links.Count > 0)
+        {
+            foreach (var (name, link, time,description) in links)
+            {
+                products.Add(new Models.Product
+                {
+                    _image = "C:\\Users\\popka\\OneDrive\\Зображення\\ole_shu_poster_for_twitch_in_cyberpunk_and_fantasy_style_b0ca07b8-f342-4cbd-96bf-cdd72eba7146.png",
+                    IsPublic = true,
+                    Name =name,
+                    Description = description,
+                    Id = link,
+                    Time = time,
+                });
+            }
+        }
+        else
+        {
+            products.Add(new Models.Product
+            {
+                _image = "",
+                IsPublic = true,
+                Name ="ERROR",
+                Id = "ERROR",
+                Time = "ERROR",
+            });
+        }
+    }
+
+}

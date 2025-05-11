@@ -1,0 +1,32 @@
+﻿.header{
+    text-align: center;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    font-size: 30px;
+    font-weight: bold;
+    border-color: #0a53be;
+    border-width: 10px;
+    border-style: solid;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #0a53be;
+    color: white;
+}
+.product-container {
+    display: flex;
+    flex-direction: row-reverse; 
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+.product {
+    margin: 30px;
+    width: 250px;
+    height: 260px;
+}
+.product_img {
+    width: 175px;
+    height: 150px;
+}
+.product_info {
+    text-align: center;
+}
