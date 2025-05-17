@@ -2,7 +2,25 @@
 using HtmlAgilityPack;
 
 namespace MySite.Components.Parser;
-
+public struct GitUserInfo
+{
+    [JsonPropertyName("login")]
+    public string Name { get; set; }
+    [JsonPropertyName("avatar_url")]
+    public string Image { get; set; }
+    [JsonPropertyName("name")]
+    public string? FullName { get; set; }
+    [JsonPropertyName("company")]
+    public string? Company { get; set; }
+    [JsonPropertyName("location")]
+    public string? Location { get; set; }
+    [JsonPropertyName("bio")]
+    public string? Bio { get; set; }
+    [JsonPropertyName("public_repos")]
+    public int? Public { get; set; }
+    [JsonPropertyName("created_at")]
+    public DateTime Created { get; set; }
+}
 public struct GitRepo
 {
     [JsonPropertyName("name")]
@@ -29,6 +47,31 @@ public class Git_parse
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; MyApp/1.0)");
         var response = await client.GetFromJsonAsync<List<GitRepo>>("https://api.github.com/users/Gijysm/repos");
         return response ?? new();
+    }
+    private static async Task<GitUserInfo> GetUserInfo()
+    {
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("MyApp/1.0");
+        
+        return await client.GetFromJsonAsync<GitUserInfo>("https://api.github.com/users/Gijysm");
+    }
+    public static async Task<List<(string, string,string, string, string, string, int, string)>> ParseInfoUser()
+    {
+        var user = await GetUserInfo();
+        
+        return new List<(string, string, string, string, string, string, int, string)>
+        {
+            (
+                user.Image,
+                user.Name,
+                user.FullName ?? "",
+                user.Location ?? "",
+                user.Created.ToString("yyyy-MM-dd HH:mm"),
+                user.Bio ?? "",
+                user.Public ?? 0,
+                user.Company ?? ""
+            )
+        };
     }
     public static async Task<List<(string, string,string, string)>> ParseRepos()
     {
