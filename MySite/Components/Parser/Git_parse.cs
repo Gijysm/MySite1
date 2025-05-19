@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Net.Http.Headers;
+using System.Text.Json.Serialization;
 using HtmlAgilityPack;
 
 namespace MySite.Components.Parser;
@@ -44,15 +45,20 @@ public class Git_parse
     private static async Task<List<GitRepo>> GetReposInfo()
     {
         using HttpClient client = new HttpClient();
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; MyApp/1.0)");
+        /*client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue();*/
+        
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("MySiteApp");
         var response = await client.GetFromJsonAsync<List<GitRepo>>("https://api.github.com/users/Gijysm/repos");
         return response ?? new();
     }
     private static async Task<GitUserInfo> GetUserInfo()
     {
         using var client = new HttpClient();
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("MyApp/1.0");
+        /*client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue();*/
         
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("MySiteApp");
         return await client.GetFromJsonAsync<GitUserInfo>("https://api.github.com/users/Gijysm");
     }
     public static async Task<List<(string, string,string, string, string, string, int, string)>> ParseInfoUser()

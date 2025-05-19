@@ -1,19 +1,20 @@
-﻿const AnimProgressbar = document.querySelectorAll('.progress-bar');
+﻿window.updateProgressBarManually = function (value) {
+    const bar = document.querySelector('.progress-bar');
+    if (bar) {
+        bar.setAttribute("data-value", value.toFixed(2));
+        bar.style.setProperty('--progress', value.toFixed(2));
 
-AnimProgressbar.forEach(el=>{
-    const value = el.dataset.value;
-    let current = 0;
-    
-    const animate = ()=>{
-        if(current <= value){
-            el.style.setProperty('--progress', `${current}%`);
-            el.setAttribute('data-value', current);
-            current++;
-            requestAnimationFrame(animate);
+        const progressElement = document.getElementById('progress-percent');
+        if (progressElement) {
+            progressElement.textContent = `Прогрес: ${value.toFixed(2)}%`;
         }
+
+        bar.classList.remove("animate");
+        void bar.offsetWidth;
+        bar.classList.add("animate");
+
+        console.log("✔️ Прогрес оновлено до", value.toFixed(2));
+    } else {
+        console.warn("⚠️ .progress-bar не знайдено!");
     }
-    
-    setTimeout(()=>{
-        requestAnimationFrame(animate);
-    }, 1);
-});
+};

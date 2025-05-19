@@ -1,10 +1,14 @@
 ﻿@page "/"
 @using MySite.Components.Parser
 @using MySite.Models
-<!Doctype html>
+@inject IJSRuntime Js
+
+<!DOCTYPE html>
 <PageTitle>Home</PageTitle>
 <link rel="stylesheet" href="/lib/bootstrap/dist/css/HomeBoard.css" />
-<script src = "/lib/bootstrap/dist/js/AnimProgressbar.js" defer></script>
+<link rel="stylesheet" href="/lib/bootstrap/dist/css/Calendar.css" />
+<script src="/lib/bootstrap/dist/js/Calendar.js" defer></script>
+
 <header>
     <div class="user_container">
         <div class="profile_card">
@@ -23,46 +27,104 @@
         </div>
     </div>
     <div class="progress-bar-container">
-        <div class="progress-bar" data-value="@RepozServise.GetLaterRepose(DateTime.Now)"></div>
+        <div class="progress-bar"
+             @ref="progressBarRef"
+             data-value="@ProgressPrecent.ToString("F2")"
+             style="--progress:@ProgressPrecent.ToString("F2")">
+        </div>
     </div>
+    <div class="calendar-container">
+        <h1 class="Calendar_text">Календар</h1>
+        <div class="calendar">
+            <header class="Calendar_header">
+                <h3 class="Calendar_h3"></h3>
+                <nav>
+                    <button id="prev"></button>
+                    <button id="next"></button>
+                </nav>
+            </header>
+            <ul class="days">
+                <li>Пон</li>
+                <li>Вів</li>
+                <li>Сер</li>
+                <li>Чет</li>
+                <li>П'ят</li>
+                <li>Суб</li>
+                <li>Нед</li>
+            </ul>
+            <ul class="dates"></ul>
+        </div>
+    </div>
+
 </header>
 
-<body>
-</body>
+<body></body>
 <footer></footer>
-@code{
 
-    private UserInfo MyIformation;
+@code {
+    
+    private int selectedYear;
+    private int? Count_Repose;
+    private double ProgressPrecent;
+    private bool needsJsUpdate = false;
+
+    private int[] years = Array.Empty<int>();
+    private ElementReference progressBarRef;
+
+    private bool _rendered = false;
+    private int selectedIndex;
+
+    private UserInfo MyIformation = new();
+    private DateTime now = new DateTime(DateTime.Now.Year, 1, 1);
+    private int DaysInYear = DateTime.IsLeapYear(DateTime.UtcNow.Year) ? 366 : 365;
+    private double newProgressValue = 0.0;
+    
+    
     protected override async Task OnInitializedAsync()
     {
-        List<(string, string, string, string, string, string, int, string)> Informations = await Git_parse.ParseInfoUser();
-        if (Informations.Count > 0)
-        {
-            foreach (var (image, name, fullname, 
-                         location, created,
-                         bio, Public_repos,
-                         company) in Informations)
+            selectedYear = now.Year;
+
+            Count_Repose = await RepozServise.GetLaterRepose(now);
+            if (Count_Repose.HasValue && DaysInYear > 0)
             {
+                ProgressPrecent = ((double)Count_Repose.Value / DaysInYear) * 100;
+                if (ProgressPrecent > 100) ProgressPrecent = 100;
+            }
+
+            List<(string, string, string, string, string, string, int, string)> Informations = await Git_parse.ParseInfoUser();
+            if (Informations.Count > 0)
+            {
+                var info = Informations[0];
                 MyIformation = new UserInfo
                 {
-                    Image = image,
-                    Name = name,
-                    FullName = fullname,
-                    Location = location,
-                    Created = created,
-                    Bio = bio,
-                    Public = Public_repos,
-                    Company = company,
+                    Image = info.Item1,
+                    Name = info.Item2,
+                    FullName = info.Item3,
+                    Location = info.Item4,
+                    Created = info.Item5,
+                    Bio = info.Item6,
+                    Public = info.Item7,
+                    Company = info.Item8
                 };
+
+                if (DateTime.TryParse(MyIformation.Created, out DateTime createdDate))
+                {
+                    int startYear = 2022;
+                    int currentYear = DateTime.Now.Year;
+                    years = Enumerable.Range(startYear, currentYear - startYear + 1).ToArray();
+                    selectedIndex = years.Length - 1;
+                }
             }
-            
-        }
-        else
-        {
-            MyIformation = new UserInfo();
-        }
-        
+                
+
+        StateHasChanged();
         
     }
 
+    private void LogMessage(string message)
+    {
+        // Використовуємо UTF-8 кодування для коректного відображення кирилиці
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        Console.WriteLine(message);
+    }
 }
